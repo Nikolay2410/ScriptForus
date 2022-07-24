@@ -1,7 +1,6 @@
 package com.company;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
@@ -9,23 +8,25 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class Main {
 
-    public static void main(String[] args) {
-        List<File> files = getFiles();
+    public static void main(String[] args) throws IOException {
+        toOldFiles();
+        List<File> files = getXMLFiles();
+        System.out.println();
+        System.out.println("Исправление");
+        System.out.println();
         for (int i = 0; i < files.size(); i++) {
             if (files.get(i).getPath().endsWith(".xml")) {
                 File currentFile = files.get(i);
-                System.out.println("File is " + currentFile);
+                System.out.println("File is XML " + currentFile);
                 Document doc = buildDoc(currentFile);
 //                Node rootNode = doc.getFirstChild(); //Файл
 
@@ -62,11 +63,18 @@ public class Main {
                 saveChanges(currentFile, doc);
             }
         }
-//        showMessageDialog(null, "Программа завершила выполнение успешно");
+        System.out.println("Программа завершилась успешно");
     }
 
-    private static List<File> getFiles() {
-        String path = Paths.get("").toAbsolutePath() + "/ПАПОЧКА";
+    private static List<File> getXMLFiles() {
+        String path = Paths.get("").toAbsolutePath() + "/СТАРЫЕ ФАЙЛЫ";
+        File dir = new File(path);
+        File[] arrFiles = dir.listFiles();
+        List<File> files = Arrays.asList(arrFiles);
+        return files;
+    }
+    private static List<File> getZIPFiles() {
+        String path = Paths.get("").toAbsolutePath().toString();
         File dir = new File(path);
         File[] arrFiles = dir.listFiles();
         List<File> files = Arrays.asList(arrFiles);
@@ -112,5 +120,43 @@ public class Main {
         str = str.replace('_', '-');
         str = str.replace("\"", "");
         return str;
+    }
+
+    public static void toOldFiles() throws IOException {
+        //создание папки СТАРЫЕ ФАЙЛЫ
+        File oldDir = new File(Paths.get("СТАРЫЕ ФАЙЛЫ") + "/");
+        if (!oldDir.exists()){
+            oldDir.mkdirs();
+        }
+        File mainDir = new File(Paths.get("").toAbsolutePath().toString());
+        System.out.println(mainDir);
+
+        System.out.println("Распаковка");
+        //распаковка файлов из архивов
+        List<File> zipFiles = getZIPFiles();
+        for (int i = 0; i < zipFiles.size(); i++) {
+            if (zipFiles.get(i).getPath().endsWith(".zip")) {
+                File currentFile = zipFiles.get(i);
+                System.out.println("File is ZIP " + currentFile);
+                ZipInputStream zis = new ZipInputStream(new FileInputStream(currentFile.getAbsolutePath()));
+
+                ZipEntry entry;
+                while ((entry=zis.getNextEntry()) != null) {
+                    if(entry.getName().equals("meta.xml") || entry.getName().equals("1/card.xml")) {
+                        continue;
+                    }
+                    System.out.println(entry.getName());
+                    String name = entry.getName().substring(2);
+                    FileOutputStream fout = new FileOutputStream(oldDir + "/" + name);
+                    for (int c = zis.read(); c != -1; c = zis.read()) {
+                        fout.write(c);
+                    }
+                    fout.flush();
+                    fout.close();
+                }
+                zis.close();
+
+            }
+        }
     }
 }
