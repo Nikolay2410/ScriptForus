@@ -10,9 +10,13 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Main {
 
@@ -62,7 +66,7 @@ public class Main {
     }
 
     private static List<File> getFiles() {
-        String path = Paths.get("").toAbsolutePath().toString();
+        String path = Paths.get("").toAbsolutePath() + "/ПАПОЧКА";
         File dir = new File(path);
         File[] arrFiles = dir.listFiles();
         List<File> files = Arrays.asList(arrFiles);
@@ -89,7 +93,7 @@ public class Main {
             e.printStackTrace();
 //            showMessageDialog(null, "Ошибка сохранения в файл");
         }
-        File newDir = new File(currentFile.getParent() + "/НОВЫЕ ФАЙЛЫ"); //папка в которую помещаются новые файлы
+        File newDir = new File(Paths.get("НОВЫЕ ФАЙЛЫ") + "/"); //папка в которую помещаются новые файлы
         if (!newDir.exists()){
             newDir.mkdirs();
         }
