@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 
 public class Main {
 
+    static String dirName = "";
+
     public static void main(String[] args) throws IOException {
         toOldFiles();
         List<File> files = getXMLFiles();
@@ -40,6 +42,7 @@ public class Main {
                 String str3 = secondNodeList.item(0).getAttributes().item(1).getTextContent();
                 System.out.println(str3); //ИдПол
 
+                dirName = str3;
                 //Замена
 
 //                str1 = myReplace(str1);
@@ -60,7 +63,7 @@ public class Main {
                 System.out.println(str3); //ИдПол
                 System.out.println();
 
-                saveChanges(currentFile, doc);
+                saveChanges(currentFile, doc, dirName);
             }
         }
         System.out.println("Программа завершилась успешно");
@@ -93,7 +96,7 @@ public class Main {
         return doc;
     }
 
-    private static void saveChanges(File currentFile, Document doc) {
+    private static void saveChanges(File currentFile, Document doc, String dirName) {
         Transformer transformer = null;
         try {
             transformer = TransformerFactory.newInstance().newTransformer();
@@ -101,7 +104,7 @@ public class Main {
             e.printStackTrace();
 //            showMessageDialog(null, "Ошибка сохранения в файл");
         }
-        File newDir = new File(Paths.get("НОВЫЕ ФАЙЛЫ") + "/"); //папка в которую помещаются новые файлы
+        File newDir = new File(Paths.get(dirName) + "/"); //папка в которую помещаются новые файлы
         if (!newDir.exists()){
             newDir.mkdirs();
         }
