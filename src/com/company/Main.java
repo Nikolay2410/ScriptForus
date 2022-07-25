@@ -146,7 +146,7 @@ public class Main {
                         continue;
                     }
                     System.out.println(entry.getName());
-                    String name = entry.getName().substring(2);
+                    String name = checkName(entry.getName()); //entry.getName().substring(2);
                     FileOutputStream fout = new FileOutputStream(oldDir + "/" + name);
                     for (int c = zis.read(); c != -1; c = zis.read()) {
                         fout.write(c);
@@ -158,5 +158,20 @@ public class Main {
 
             }
         }
+    }
+
+    public static String checkName (String str) {
+        String newName = str;
+        if (str.contains("/")) {
+            for (int i = 0; i < str.length(); i++) {
+                if (str.charAt(i) != '/') {
+                    newName = newName.substring(1);
+                } else {
+                    newName = newName.substring(1);
+                    break;
+                }
+            }
+        }
+        return newName;
     }
 }
