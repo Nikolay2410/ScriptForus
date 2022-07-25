@@ -3,12 +3,14 @@ package com.company;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.zip.ZipInputStream;
 public class Main {
 
     static String dirName = "";
+    private static final String OLD_FILES_PATH = "/ZIP/СТАРЫЕ ФАЙЛЫ";
 
     public static void main(String[] args) throws IOException {
         toOldFiles();
@@ -66,18 +69,47 @@ public class Main {
                 saveChanges(currentFile, doc, dirName);
             }
         }
+        System.out.println("Очищение старых файлов");
+        deleteOldFiles();
+        System.out.println("Очищение папки ZIP");
+        deleteZIPFiles();
         System.out.println("Программа завершилась успешно");
     }
 
+    //очищение папки ZIP
+    private static void deleteZIPFiles() {
+        List<File>files = getZIPFiles();
+        deleteFiles(files);
+    }
+
+    //функция для удаления списка файлов
+    private static void deleteFiles(List<File> files) {
+        for (int i = 0; i < files.size(); i++) {
+            files.get(i).delete();
+        }
+    }
+
+    //удаление папки СТАРЫЕ ФАЙЛЫ вместе с содержимым
+    private static void deleteOldFiles() {
+        String path = Paths.get("").toAbsolutePath() + OLD_FILES_PATH;
+        File dir = new File(path);
+        File[] arrFiles = dir.listFiles();
+        List<File> files = Arrays.asList(arrFiles);
+
+        deleteFiles(files);
+        dir.delete();
+    }
+
     private static List<File> getXMLFiles() {
-        String path = Paths.get("").toAbsolutePath() + "/СТАРЫЕ ФАЙЛЫ";
+        String path = Paths.get("").toAbsolutePath() + OLD_FILES_PATH;
         File dir = new File(path);
         File[] arrFiles = dir.listFiles();
         List<File> files = Arrays.asList(arrFiles);
         return files;
     }
+
     private static List<File> getZIPFiles() {
-        String path = Paths.get("").toAbsolutePath().toString();
+        String path = Paths.get("ZIP").toAbsolutePath().toString();
         File dir = new File(path);
         File[] arrFiles = dir.listFiles();
         List<File> files = Arrays.asList(arrFiles);
@@ -127,7 +159,7 @@ public class Main {
 
     public static void toOldFiles() throws IOException {
         //создание папки СТАРЫЕ ФАЙЛЫ
-        File oldDir = new File(Paths.get("СТАРЫЕ ФАЙЛЫ") + "/");
+        File oldDir = new File(Paths.get("ZIP/СТАРЫЕ ФАЙЛЫ") + "/");
         if (!oldDir.exists()){
             oldDir.mkdirs();
         }
